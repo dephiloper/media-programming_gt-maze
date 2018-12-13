@@ -1,0 +1,13 @@
+fileFormatVersion: 2
+guid: 0c7d9937ce054e84ea4895f26eb26d43
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - _hPedal: {fileID: 1000012495938960, guid: 61ab0005e0dd4014aafd36b4e2857422, type: 3}
+  - _vPedal: {instanceID: 0}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
