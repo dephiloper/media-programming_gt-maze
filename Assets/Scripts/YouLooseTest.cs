@@ -3,16 +3,15 @@ using System.Collections;
 
 public class YouLooseTest : MonoBehaviour
 {
-
-    CreateLevel gameCtrl;
+    private CreateLevel _gameCtrl;
 
     // Use this for initialization
-    void Start()
+    private void Start()
     {
         //Get a reference
     }
 
-     void OnTriggerEnter(Collider other)
+    private void OnTriggerEnter(Collider other)
     {
         //call a method of gameCtrl
     }

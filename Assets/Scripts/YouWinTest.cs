@@ -2,17 +2,17 @@
 using System.Collections;
 
 public class YouWinTest : MonoBehaviour {
-    CreateLevel gameCtrl;
+    private CreateLevel _gameCtrl;
 
     // Use this for initialization
-    void Start()
+    private void Start()
     {
         //Get a reference
     }
 
-    void OnTriggerEnter(Collider other)
+    private void OnTriggerEnter(Collider other)
     {
         //call a method of gameCtrl indicating a possible win situation
-        //Is ist good to test for Player here?
+        //Is it good to test for Player here?
     }
 }

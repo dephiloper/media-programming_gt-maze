@@ -3,25 +3,21 @@
 public class BaseMovement : MonoBehaviour {
     [SerializeField] private GameObject _hPedal;
     [SerializeField] private GameObject _vPedal;
-    [SerializeField] private float _hRot, _vRot;
-    [SerializeField] private float _pedalFactor = -10;
+    [SerializeField] private float _pedalFactor = -10f;
     [SerializeField] private float _rotFactor = 30f;
-
-    private Quaternion _initRotVPedal;
-    private Quaternion _initRotHPedal;
     
-    private void Start ()
-    {
-        _initRotHPedal = _hPedal.transform.rotation;
-        _initRotVPedal = _vPedal.transform.rotation;
-    }
-
     private void Update()
     {
         RotatePlatform();
         
+        // reset rotation with key 0 for debug purpose
         if (Input.GetKeyDown(KeyCode.Alpha0)) 
             transform.rotation = Quaternion.Euler(0, 0 ,0);
+
+        if (Input.GetKey(KeyCode.E))
+            transform.Rotate(0, -_rotFactor * Time.deltaTime, 0);
+        else if (Input.GetKey(KeyCode.Q))
+            transform.Rotate(0, _rotFactor * Time.deltaTime, 0);
     }
 
     private void RotatePlatform()
@@ -35,8 +31,8 @@ public class BaseMovement : MonoBehaviour {
 
         //Apply a part of the rotation to this (and children) to rotate the play field
         //Use Quaternion.Slerp and Quaternion.Euler for doing it
-        transform.Rotate(vAxis, 0, 0);
-        transform.Rotate(0, 0, -hAxis);
+        transform.Rotate(-vAxis, 0, 0);
+        transform.Rotate(0, 0, hAxis);
 
         //Apply an exaggerated amount of rotation to the pedals to visualize the players input
         //Make the rotation look right
