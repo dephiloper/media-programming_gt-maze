@@ -521,22 +521,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e83f4b0a0d6a024689df7f72781fdd1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _outerWall: {fileID: 1000011184248900, guid: 385789a77abb9ff4698c4d7773cc0f2d, type: 3}
-  _innerWall: {fileID: 1000013581181652, guid: 6aa59ff40bf6c9244af19401ad85802b, type: 3}
-  _exitTile: {fileID: 1000012243137280, guid: 5f17e86767f1e654086f1835c3e8ef72, type: 3}
-  _floorTiles:
+  outerWall: {fileID: 1000011184248900, guid: 385789a77abb9ff4698c4d7773cc0f2d, type: 3}
+  innerWall: {fileID: 1000013581181652, guid: 6aa59ff40bf6c9244af19401ad85802b, type: 3}
+  exitTile: {fileID: 1000012243137280, guid: 5f17e86767f1e654086f1835c3e8ef72, type: 3}
+  floorTiles:
   - {fileID: 1000010879394512, guid: b0e7d66abbcead04c95cb0ef899b22ef, type: 3}
   - {fileID: 1000010734237360, guid: 87df5f640c22dde4eb32b552253f32d7, type: 3}
   - {fileID: 1000010833126258, guid: f6f23218c209fe14d81ad73ec627697d, type: 3}
   - {fileID: 1000014233399554, guid: 0697db6d39af64247a6047ec323f0402, type: 3}
   - {fileID: 1000010831930918, guid: 0c20b94d1a4f4274d8852a4954887276, type: 3}
   - {fileID: 1000012327649824, guid: ca23aae67ddbd0845a3dd8d488df0270, type: 3}
-  _xHalfExt: 1
-  _zHalfExt: 1
-  _root: {fileID: 2132410588}
-  _floor: {fileID: 1057088155}
-  _environment: {fileID: 1460428233}
-  _ball: {fileID: 991986546}
+  xHalfExt: 3
+  zHalfExt: 1
+  root: {fileID: 2132410588}
+  floor: {fileID: 1057088155}
+  environment: {fileID: 1460428233}
+  ball: {fileID: 991986546}
 --- !u!4 &380694369
 Transform:
   m_ObjectHideFlags: 0
@@ -869,7 +869,7 @@ PrefabInstance:
     - target: {fileID: 65000010368428246, guid: db12fd5adc6354e4b86542f07ae9876d,
         type: 3}
       propertyPath: m_IsTrigger
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: db12fd5adc6354e4b86542f07ae9876d, type: 3}
@@ -1372,11 +1372,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0c7d9937ce054e84ea4895f26eb26d43, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _camera: {fileID: 1346720326}
-  _hPedal: {fileID: 563446975}
-  _vPedal: {fileID: 321387089}
-  _pedalFactor: 10
-  _rotFactor: 30
+  hPedal: {fileID: 563446975}
+  vPedal: {fileID: 321387089}
+  pedalFactor: -10
+  rotFactor: 30
 --- !u!4 &2132410590
 Transform:
   m_ObjectHideFlags: 0

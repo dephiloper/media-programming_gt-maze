@@ -1,18 +1,20 @@
 ﻿using UnityEngine;
-using System.Collections;
 
-public class YouWinTest : MonoBehaviour {
+public class YouWinTest : MonoBehaviour 
+{
     private CreateLevel _gameCtrl;
 
     // Use this for initialization
     private void Start()
     {
-        //Get a reference
+        //Get a 
+        _gameCtrl = CreateLevel.Instance;
     }
 
-    private void OnTriggerEnter(Collider other)
+    private void OnTriggerExit(Collider other)
     {
         //call a method of gameCtrl indicating a possible win situation
         //Is it good to test for Player here?
+        _gameCtrl.WinTrigger(other.gameObject);
     }
 }
