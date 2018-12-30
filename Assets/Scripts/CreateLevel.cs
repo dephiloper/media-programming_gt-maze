@@ -26,14 +26,12 @@ public class CreateLevel : MonoBehaviour
     [Header("Play Field Size")] 
     [SerializeField]
     private int xHalfExt = 2;
-
     [SerializeField] 
     private int zHalfExt = 2;
 
     [Header("Environment References")] 
     [SerializeField]
     private GameObject root;
-
     [SerializeField] 
     private GameObject floor;
     [SerializeField] 
@@ -48,6 +46,16 @@ public class CreateLevel : MonoBehaviour
     private Stack<Cell> _backTrackerStack;
 
     private Cell _currentCell;
+    private const float DefaultScaleValue = 0.5f;
+    private const float IncreaseScaleFactor = 0.3f;
+
+#if UNITY_EDITOR
+    private void OnValidate()
+    {
+        if (xHalfExt < 0 || zHalfExt < 0) 
+            Debug.LogError("xHalfExt and zHalfExt must both have positive values.");
+    }
+    #endif
 
     private void Awake()
     {
@@ -67,9 +75,16 @@ public class CreateLevel : MonoBehaviour
         //Calculate a scale factor for scaling the non-movable environment (and therefore the camera) and the BasePlatform 
         // the factors that the environment are scaled for right now are for x/zHalfExt =1, scale accordingly
         //i.e. the play field/environment should be as big as the dynamic field
-        //Scale Environment
-        environment.transform.localScale *= offset * 0.8f;
         floor.transform.localScale = new Vector3(_xExt * TileSize, 1, _zExt * TileSize);
+        floor.transform.Translate(Vector3.up * -offset);
+        
+        
+        
+        //Scale Environment 
+        // if the offset is 0 or 1 we do not change the scale
+        // otherwise we scale the environment stepwise with an increase of 0.3
+        var scaleValue = offset < 2 ? DefaultScaleValue : DefaultScaleValue + IncreaseScaleFactor * (offset - 1f);
+        environment.transform.localScale = new Vector3(scaleValue, scaleValue, scaleValue);
         
         if (root != null)
         {
@@ -85,8 +100,31 @@ public class CreateLevel : MonoBehaviour
             //Set the walls for the maze (place only one wall between two cells, not two!)
             CreateMaze();
 
+            CreateExit();
+            
             //Place the PlayerBall above the play field
            PlaceBallStart();
+        }
+    }
+
+    private void CreateOuterWalls()
+    {
+        for (var i = -xHalfExt; i <= xHalfExt; i++)
+        {
+            var outerWallL = Instantiate(outerWall, root.transform, true);
+            var outerWallR = Instantiate(outerWall, root.transform, true);
+            outerWallL.transform.Translate(i * TileSize, 0, _zExt / 2f * TileSize);
+            outerWallR.transform.Translate(i * TileSize, 0, -_zExt / 2f * TileSize);
+        }
+
+        for (var i = -zHalfExt; i <= zHalfExt; i++)
+        {
+            var outerWallT = Instantiate(outerWall, root.transform, true);
+            var outerWallB = Instantiate(outerWall, root.transform, true);
+            outerWallT.transform.Translate(_xExt / 2f * TileSize, 0, i * TileSize);
+            outerWallB.transform.Translate(-_xExt / 2f * TileSize, 0, i * TileSize);
+            outerWallT.transform.Rotate(0, 90, 0);
+            outerWallB.transform.Rotate(0, 90, 0);
         }
     }
 
@@ -123,7 +161,41 @@ public class CreateLevel : MonoBehaviour
             }
         }
     }
+    
+    private GameObject CreateInnerWall(float x, float z, bool rotate = false)
+    {
+        var wall = Instantiate(innerWall);
+        wall.transform.Translate(x, 0, z);
+        if (rotate) wall.transform.Rotate(0, 90, 0); // rotate after translate
+        return wall;
+    }
 
+    private GameObject CreateTile(int x, int z, TileType tileType)
+    {
+        GameObject tile;
+        
+        switch (tileType)
+        {
+            case TileType.Random:
+                tile = Instantiate(floorTiles[(int) Mathf.Floor(Random.Range(0, floorTiles.Length))]);
+                break;
+            case TileType.Entrance:
+                tile = Instantiate(floorTiles[0]);
+                break;
+            case TileType.Exit:
+                tile = Instantiate(exitTile);
+                break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(tileType), tileType,
+                    "This message should never be printed out.");
+        }
+
+        tile.transform.Translate(x * TileSize, 0, z * TileSize);
+        tile.transform.parent = root.transform;
+
+        return tile;
+    }
+    
     private void CreateMaze()
     {
         // Make the initial cell the current cell and mark it as visited
@@ -151,21 +223,21 @@ public class CreateLevel : MonoBehaviour
                 currentCell = _backTrackerStack.Pop();
             }
         }
-        
-        Destroy(currentCell.Tile);
-        currentCell.Tile = CreateTile(currentCell.X - xHalfExt, currentCell.Z - zHalfExt, TileType.Exit);
+    }
+    
+    private void CreateExit()
+    {
+        var lastCell = _cells[_xExt - 1, _zExt - 1];
+        Destroy(lastCell.Tile);
+        lastCell.Tile = CreateTile(lastCell.X - xHalfExt, lastCell.Z - zHalfExt, TileType.Exit);
     }
 
     private static void RemoveWall(Cell current, Cell neighbour)
     {
-        if (current.X < neighbour.X)
-            Destroy(current.RightWall);
-        else if (current.X > neighbour.X)
-            Destroy(neighbour.RightWall);
-        else if (current.Z < neighbour.Z)
-            Destroy(current.TopWall);
-        else if (current.Z > neighbour.Z)
-            Destroy(neighbour.TopWall);
+        if (current.X < neighbour.X) Destroy(current.RightWall);
+        else if (current.X > neighbour.X) Destroy(neighbour.RightWall);
+        else if (current.Z < neighbour.Z) Destroy(current.TopWall);
+        else if (current.Z > neighbour.Z) Destroy(neighbour.TopWall);
     }
 
     private Cell FindRandomNeighbours(Cell cell)
@@ -184,64 +256,6 @@ public class CreateLevel : MonoBehaviour
         // Choose randomly one of the unvisited neighbours
         var rand = (int) Mathf.Floor(Random.Range(0, neighbours.Count));
         return neighbours[rand];
-    }
-
-    private GameObject CreateInnerWall(float x, float z, bool rotate = false)
-    {
-        var wall = Instantiate(innerWall);
-        wall.transform.Translate(x, 0, z);
-        if (rotate) wall.transform.Rotate(0, 90, 0); // rotate after translate
-        return wall;
-    }
-
-    private GameObject CreateTile(int x, int z, TileType tileType)
-    {
-        GameObject tile = null;
-        
-        switch (tileType)
-        {
-            case TileType.Random:
-                tile = Instantiate(floorTiles[(int) Mathf.Floor(Random.Range(0, floorTiles.Length))]);
-                break;
-            case TileType.Entrance:
-                tile = Instantiate(floorTiles[0]);
-                break;
-            case TileType.Exit:
-                tile = Instantiate(exitTile);
-                break;
-            default:
-                Console.WriteLine("This message should never be printed.");
-                break;
-        }
-        
-        tile.transform.Translate(x * TileSize, 0, z * TileSize);
-        tile.transform.parent = root.transform;
-        return tile;
-    }
-
-    private void CreateOuterWalls()
-    {
-        for (var i = -xHalfExt; i <= xHalfExt; i++)
-        {
-            var outerWallL = Instantiate(outerWall);
-            var outerWallR = Instantiate(outerWall);
-            outerWallL.transform.Translate(i * TileSize, 0, _zExt / 2f * TileSize);
-            outerWallR.transform.Translate(i * TileSize, 0, -_zExt / 2f * TileSize);
-            outerWallL.transform.parent = root.transform;
-            outerWallR.transform.parent = root.transform;
-        }
-
-        for (var i = -zHalfExt; i <= zHalfExt; i++)
-        {
-            var outerWallT = Instantiate(outerWall);
-            var outerWallB = Instantiate(outerWall);
-            outerWallT.transform.Translate(_xExt / 2f * TileSize, 0, i * TileSize);
-            outerWallB.transform.Translate(-_xExt / 2f * TileSize, 0, i * TileSize);
-            outerWallT.transform.Rotate(0, 90, 0);
-            outerWallB.transform.Rotate(0, 90, 0);
-            outerWallT.transform.parent = root.transform;
-            outerWallB.transform.parent = root.transform;
-        }
     }
 
     //You might need this more than once...
@@ -272,7 +286,7 @@ public class CreateLevel : MonoBehaviour
             //Generate new maze
             //Player has fallen onto ground plane, reset
             SceneManager.LoadScene(0);
-    }
+    }    
 }
 
 internal class Cell : MonoBehaviour
